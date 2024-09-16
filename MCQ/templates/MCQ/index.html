@@ -6,8 +6,17 @@
     <title>Index</title>
 </head>
 <body>
-    <h1>{{quiz.title}}</h1>
-    <p>{{quiz.description}}</p>
-    <legend>{{quiz.created_at}}</legend>
+    {% if quizzes %}
+    <ul>
+        {% for quiz in quizzes %}
+        <li>
+            <h1>{{quiz.title}}</h1>
+            <p>{{quiz.description}}</p>
+            <legend>{{quiz.created_at}}</legend>
+            <a href="{% url 'MCQ:quiz' quiz.id %}">Take Quiz</a>
+        </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
 </body>
 </html>
