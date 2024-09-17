@@ -6,5 +6,5 @@ app_name = "MCQ"
 urlpatterns = [
     path('home', views.index.as_view(), name="index"),
     path('<int:pk>/quiz', views.quiz.as_view(), name="quiz"),
-    path('<int:pk>/result', views.result.as_view(), name="result"),
+    path('quiz/<int:quiz_id>/result/', views.calculate_result, name='calculate_result'),
 ]

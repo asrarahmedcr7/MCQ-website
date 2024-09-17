@@ -6,6 +6,20 @@
     <title>Quiz</title>
 </head>
 <body>
-    
+    <form action="{% url 'MCQ:calculate_result' quiz.id %}" method="post">
+        {% csrf_token %}
+        {% for question in quiz.questions.all%}
+            <h3>{{question.question_text}}</h3>
+            <ul>
+                {% for choice in question.answers.all %}
+                    <li>
+                        <input type="radio" name="question_{{ question.id }}" value="{{ choice.id }}">
+                        <label for="choice{{ forloop.counter }}">{{ choice.choice_text }}</label>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endfor %}
+        <button type="submit">Submit Quiz</button>
+    </form>
 </body>
 </html>
