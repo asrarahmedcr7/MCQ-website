@@ -1,0 +1,18 @@
+{% extends "Student/base.html" %}
+
+{% block title %}Home Page{% endblock %}
+
+{% block content %}
+    {% if quizzes %}
+        <ul>
+            {% for quiz in quizzes %}
+            <li>
+                <h1>{{quiz.title}}</h1>
+                <p>{{quiz.description}}</p>
+                <legend>{{quiz.created_at}}</legend>
+                <a href="{% url 'Student:quiz' quiz.id %}">Take Quiz</a>
+            </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endblock %}

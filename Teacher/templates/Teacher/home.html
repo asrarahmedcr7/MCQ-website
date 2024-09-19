@@ -1,0 +1,20 @@
+{% extends "Teacher/base.html" %}
+{% load static %}
+{% block script %}{% static 'Teacher/js/home.js'%}{% endblock %}
+{% block content %}
+    <input type="button" value="New Quiz" onclick="displayForm()">
+    <form action="{% url 'Teacher:createQuiz' %}" method="post" style="display: none;" id="quizForm">
+        {% csrf_token %}
+        <input type="text" name="quiz_title" placeholder="New Quiz">
+        <label for="quiz_title">Title of the quiz</label>
+        <textarea name="quiz_description" placeholder="Simple Quiz"></textarea>
+        <input type="submit" value="Create Quiz">
+    </form>
+    {% if quiz_list %}
+        {% for quiz in quiz_list %}
+            <h1>{{ quiz.title }}</h1>
+            <p>{{ quiz.description }}</p>
+            <legend>{{ quiz.created_at }}</legend>
+        {% endfor %}
+    {% endif %}
+{% endblock %}

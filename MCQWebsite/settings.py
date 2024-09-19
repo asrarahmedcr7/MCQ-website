@@ -31,7 +31,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'MCQ.apps.McqConfig',
+    'Student.apps.StudentConfig',
+    'Teacher.apps.TeacherConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

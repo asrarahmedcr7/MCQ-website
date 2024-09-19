@@ -8,6 +8,7 @@ class Quiz(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
+
 class Question(models.Model):
 
     def __str__(self) -> str:
@@ -15,6 +16,7 @@ class Question(models.Model):
 
     quiz = models.ForeignKey(Quiz, related_name='questions', on_delete=models.CASCADE)
     question_text = models.TextField()
+    
 class Choice(models.Model):
 
     def __str__(self) -> str:
