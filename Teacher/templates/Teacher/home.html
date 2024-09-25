@@ -2,19 +2,41 @@
 {% load static %}
 {% block script %}{% static 'Teacher/js/home.js'%}{% endblock %}
 {% block content %}
+    {% if user.is_authenticated %}
+    <form action="{% url 'Teacher:logout' %}" method="post">
+        {% csrf_token %}
+        <button type="submit">Logout</button>
+    </form>
+    {% else %}
+    <a href="{% url 'Teacher:login' %}">Login</a>
+    {% endif %}
+    <p id="response"></p>
     <input type="button" value="New Quiz" onclick="displayForm()">
     <form action="{% url 'Teacher:createQuiz' %}" method="post" style="display: none;" id="quizForm">
         {% csrf_token %}
-        <input type="text" name="quiz_title" placeholder="New Quiz">
-        <label for="quiz_title">Title of the quiz</label>
-        <textarea name="quiz_description" placeholder="Simple Quiz"></textarea>
+        {{QuizForm.as_p}}
         <input type="submit" value="Create Quiz">
     </form>
     {% if quiz_list %}
         {% for quiz in quiz_list %}
-            <h1>{{ quiz.title }}</h1>
-            <p>{{ quiz.description }}</p>
-            <legend>{{ quiz.created_at }}</legend>
+        <div id = "Quiz_{{quiz.id}}">
+            <div name="edit_form" id="edit_form_{{quiz.id}}" style="display: none;">
+                <form action="{% url 'Teacher:editQuiz' quiz.id %}" method="post" id="edit_form_{{quiz.id}}">
+                    {% csrf_token %}
+                    <input type="text" name="quiz_title_{{quiz.id}}" placeholder="New Quiz" value="{{quiz.title}}">
+                    <label for="quiz_title">Title of the quiz</label>
+                    <textarea name="quiz_description_{{quiz.id}}">{{quiz.description}}</textarea>
+                    <input type="submit" value="Save" onclick="toggleEditMode('{{quiz.id}}')">
+                </form>
+            </div>
+            <div name="quiz_detail" id="quiz_detail_{{quiz.id}}" style="display: block;">
+                <button onclick="showQuestions('{{quiz.id}}')"><h1>{{ quiz.title }}</h1></button>
+                <p>{{ quiz.description }}</p>
+                <legend>{{ quiz.created_at }}</legend>
+                <input type="button" value="Edit" onclick="toggleEditMode('{{quiz.id}}')">
+                <input type="button" value="Delete" onclick="deleteQuiz('{{quiz.id}}')">
+            </div>
+        </div>
         {% endfor %}
     {% endif %}
 {% endblock %}

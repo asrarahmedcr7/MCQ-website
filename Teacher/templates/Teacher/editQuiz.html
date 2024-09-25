@@ -1,0 +1,15 @@
+{% extends 'Teacher/base.html' %}
+{% block content %}
+    {% for question in quiz.questions.all %}
+        <form action="{% url 'Teacher:edit-question' quiz.id question.id %}" method="post">
+            {% csrf_token %}
+            <input type="text" name="question_text_{{question.id}}" value="{{question.question_text}}">
+            <ul>
+                {% for choice in question.answers.all %}
+                    <li><input type="text" name="choice_{{choice.id}}" value="{{choice.choice_text}}"></li>
+                {% endfor %}
+            </ul>
+            <input type="submit" value="Save">
+        </form>
+    {% endfor %}
+{% endblock %}
