@@ -32,3 +32,4 @@ const toggleEditMode = (quiz_id) => {
 const showQuestions = (quiz_id) => {
     window.location.assign(quiz_id + '/show_questions');
 }
+

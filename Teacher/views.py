@@ -1,10 +1,10 @@
 from django.shortcuts import render, redirect
-from Student.models import Quiz, Question
+from Student.models import Quiz, Question, Choice
 from datetime import datetime
 from django.http import Http404, JsonResponse
 from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth.decorators import login_required
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from .forms import QuizForm
 
 @login_required(login_url='Teacher:login')
@@ -62,6 +62,25 @@ def editQuestion(request, question_id, quiz_id):
     return Http404
 
 def editQuestions(request, quiz_id):
+    return render(request, 'Teacher/editQuiz.html', {'quiz':Quiz.objects.get(pk = quiz_id),})
+
+def deleteChoice(request, choice_id, question_id, quiz_id):
+    choice = Quiz.objects.get(pk = quiz_id).questions.get(pk=question_id).answers.get(pk=choice_id)
+    choice.delete()
+    return JsonResponse({
+        "message":"Success",
+    })
+
+def addChoice(request, question_id, quiz_id):
     if request.method == "POST":
-        return render(request, 'Teacher/editQuiz.html', {'quiz':Quiz.objects.get(pk = quiz_id),})
+        choice_text = request.POST.get('new_choice_text')
+        is_answer = request.POST.get('is_answer') == 'True'
+        newChoice = Choice(question_id = question_id, choice_text = choice_text, is_answer = is_answer)
+        newChoice.save()
+        return redirect("Teacher:edit-questions", quiz_id=quiz_id)
     return Http404()
+
+def addQuestion(request, quiz_id):
+    question = Question(quiz_id = quiz_id, question_text = request.POST.get("new_question_text"))
+    question.save()
+    return redirect("Teacher:edit-questions", quiz_id=quiz_id)

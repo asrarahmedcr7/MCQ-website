@@ -1,15 +1,48 @@
 {% extends 'Teacher/base.html' %}
 {% block content %}
+    <script>
+        function callDelete(choice_id, question_id) {
+            fetch(question_id + "/" + choice_id + "/delete-choice")
+            .then(response => response.json())
+            .then(data => {
+                if(data.message === "Success") {
+                    document.getElementById("choice_"+choice_id).remove();
+                }
+            });
+        }
+        function toggleAddChoiceForm(question_id) {
+            document.getElementById("addChoiceForm_"+question_id).style.display = "block";
+        }
+    </script>
+    
     {% for question in quiz.questions.all %}
         <form action="{% url 'Teacher:edit-question' quiz.id question.id %}" method="post">
             {% csrf_token %}
             <input type="text" name="question_text_{{question.id}}" value="{{question.question_text}}">
             <ul>
                 {% for choice in question.answers.all %}
-                    <li><input type="text" name="choice_{{choice.id}}" value="{{choice.choice_text}}"></li>
+                    <li id="choice_{{choice.id}}">
+                        <input type="text" name="choice_{{choice.id}}" value="{{choice.choice_text}}">
+                        <input type="button" value="Remove" onclick="callDelete( {{choice.id}} ,  {{question.id}})">
+                    </li>
                 {% endfor %}
             </ul>
             <input type="submit" value="Save">
         </form>
+        <input type="button" value="Add choice" onclick="toggleAddChoiceForm({{ question.id }})">
+        <div id="addChoiceForm_{{question.id}}" style="display: none;">
+            <form action="{% url 'Teacher:add-choice' quiz.id question.id %}" method="post">
+                {% csrf_token %}
+                <input type="text" name="new_choice_text" placeholder="New Choice">
+                <input type="checkbox" name="is_answer" value="True">
+                <label for="is_answer">Is this the answer?</label>
+                <input type="submit" value="Add">
+            </form>
+        </div>
     {% endfor %}
+    <form action="{% url 'Teacher:add-question' quiz.id %}" method="post">
+        {% csrf_token %}
+        <input type="text" name="new_question_text" placeholder="New Question">
+        <input type="submit" value="Add Question">
+    </form>
 {% endblock %}
