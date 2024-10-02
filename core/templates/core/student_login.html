@@ -1,0 +1,25 @@
+{% extends 'Teacher/base.html' %}
+{% block content %}
+    <div class="container d-flex justify-content-center align-items-center min-vh-100">
+        <div class="card shadow-lg p-5 w-50 border-0">
+            <h2 class="text-center mb-4">Student Login</h2>
+            <form action="{% url 'core:student-login' %}" method="post">
+                {% csrf_token %}
+                <div class="form-group mb-3">
+                    <label class="form-label" for="username">Username</label>
+                    <input class="form-control" type="text" name="username" id="username" placeholder="username" required>
+                </div>
+                <div class="form-group mb-4">
+                    <label class="form-label" for="password">Password</label>
+                    <input class="form-control" type="password" name="password" id="password" placeholder="password" required>
+                </div>
+                <div class="text-center">
+                    <input class="btn btn-primary w-100" type="submit" value="Login">
+                </div>
+                {% if error %}
+                    <div class="alert alert-danger mt-3 text-center">{{ error }}</div>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+{% endblock %}

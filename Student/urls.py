@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from core.views import student_login_view
 
 app_name = "Student"
 

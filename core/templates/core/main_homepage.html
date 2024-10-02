@@ -1,0 +1,22 @@
+{% extends 'Teacher/base.html' %}
+
+{% block content %}
+<div class="container d-flex align-items-center">
+    <div class="container mt-4">
+        <h1>Quizzyy.</h1>
+        <p>A platform to host and answer quizzes.</p>
+    </div>
+    <br>
+    <div class="container mt-5">
+        <div class="btn-group">
+            <button class="btn btn-dark btn-lg" onclick="window.location.href='{% url 'core:teacher-login' %}'">Teacher</button>
+            <button class="btn btn-light btn-lg" onclick="window.location.href='{% url 'core:student-login' %}'">Student</button>
+        </div>
+    </div>
+</div>
+<style>
+    .btn {
+        size: 20px;
+    }
+</style>
+{% endblock %}

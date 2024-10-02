@@ -1,42 +1,61 @@
 {% extends "Teacher/base.html" %}
 {% load static %}
-{% block script %}{% static 'Teacher/js/home.js'%}{% endblock %}
+{% block script %}{% static 'Teacher/js/home.js' %}{% endblock %}
 {% block content %}
-    {% if user.is_authenticated %}
-    <form action="{% url 'Teacher:logout' %}" method="post">
-        {% csrf_token %}
-        <button type="submit">Logout</button>
-    </form>
-    {% else %}
-    <a href="{% url 'Teacher:login' %}">Login</a>
-    {% endif %}
+<nav class="navbar navbar-light bg-light p-3 mb-4">
+    <div class="container-fluid d-flex justify-content-between align-items-center">
+        <h2 class="mb-0">Teacher's Corner</h2>
+        <form class="d-flex" action="{% url 'core:logout' %}" method="post">
+            {% csrf_token %}
+            <input type="submit" value="Logout" class="btn btn-outline-danger">
+        </form>
+    </div>
+</nav>
+<div class="container">
     <p id="response"></p>
-    <input type="button" value="New Quiz" onclick="displayForm()">
-    <form action="{% url 'Teacher:createQuiz' %}" method="post" style="display: none;" id="quizForm">
+    <input class="btn btn-outline-secondary btn-lg mb-3" type="button" value="New Quiz" onclick="displayForm()">
+    <form class="form-control mb-4" action="{% url 'Teacher:createQuiz' %}" method="post" style="display: none;" id="quizForm">
         {% csrf_token %}
-        {{QuizForm.as_p}}
-        <input type="submit" value="Create Quiz">
+        {{ QuizForm.as_p }}
+        <input class="btn btn-outline-primary mt-2" type="submit" value="Create Quiz">
     </form>
     {% if quiz_list %}
+    <ul class="list-group">
         {% for quiz in quiz_list %}
-        <div id = "Quiz_{{quiz.id}}">
-            <div name="edit_form" id="edit_form_{{quiz.id}}" style="display: none;">
-                <form action="{% url 'Teacher:editQuiz' quiz.id %}" method="post" id="edit_form_{{quiz.id}}">
-                    {% csrf_token %}
-                    <input type="text" name="quiz_title_{{quiz.id}}" placeholder="New Quiz" value="{{quiz.title}}">
-                    <label for="quiz_title">Title of the quiz</label>
-                    <textarea name="quiz_description_{{quiz.id}}">{{quiz.description}}</textarea>
-                    <input type="submit" value="Save" onclick="toggleEditMode('{{quiz.id}}')">
-                </form>
+        <li class="list-group-item mb-3 border-0">
+            <div class="card w-100" id="Quiz_{{quiz.id}}">
+                <div name="edit_form" id="edit_form_{{quiz.id}}" style="display: none;">
+                    <form class="form-control" action="{% url 'Teacher:editQuiz' quiz.id %}" method="post" id="edit_form_{{quiz.id}}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="quiz_title_{{quiz.id}}" class="form-label">Title of the quiz</label>
+                            <input class="form-control" type="text" name="quiz_title_{{quiz.id}}" placeholder="New Quiz" value="{{quiz.title}}">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="quiz_description_{{quiz.id}}">Quiz Description</label>
+                            <textarea class="form-control" name="quiz_description_{{quiz.id}}">{{quiz.description}}</textarea>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <input class="btn btn-success" type="submit" value="Save" onclick="toggleEditMode('{{quiz.id}}')">
+                            <input class="btn btn-outline-secondary" type="button" value="Cancel" onclick="toggleEditMode('{{quiz.id}}')">
+                        </div>
+                    </form>
+                </div>
+                <div class="card-body" name="quiz_detail" id="quiz_detail_{{quiz.id}}">
+                    <button class="btn btn-outline-primary mb-2" onclick="showQuestions('{{quiz.id}}')">
+                        <h3 class="card-title mb-0">{{ quiz.title }}</h3>
+                    </button>
+                    <p class="card-text">{{ quiz.description }}</p>
+                    <legend class="card-text">{{ quiz.created_at }}</legend>
+                    <div class="d-flex justify-content-between">
+                        <input class="btn btn-secondary" type="button" value="Edit" onclick="toggleEditMode('{{quiz.id}}')">
+                        <input class="btn btn-outline-warning" type="button" value="Delete" onclick="deleteQuiz('{{quiz.id}}')">
+                    </div>
+                </div>
             </div>
-            <div name="quiz_detail" id="quiz_detail_{{quiz.id}}" style="display: block;">
-                <button onclick="showQuestions('{{quiz.id}}')"><h1>{{ quiz.title }}</h1></button>
-                <p>{{ quiz.description }}</p>
-                <legend>{{ quiz.created_at }}</legend>
-                <input type="button" value="Edit" onclick="toggleEditMode('{{quiz.id}}')">
-                <input type="button" value="Delete" onclick="deleteQuiz('{{quiz.id}}')">
-            </div>
-        </div>
+        </li>
         {% endfor %}
+    </ul>
     {% endif %}
+</div>
 {% endblock %}

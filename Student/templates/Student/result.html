@@ -3,7 +3,38 @@
 {% block title %}Quiz{% endblock %}
 
 {% block content %}
-    <h1>Result is:</h1>
-    <p>{{ score }}</p>
-    <!-- {{choices}} -->
+<div class="container mt-5">
+    <h1 class="text-center">Quiz Result: {{ quiz.title }}</h1>
+    <hr>
+
+    <h3 class="mb-4">Your Score: {{ score }} / {{ total_questions }}</h3>
+
+    <!-- Loop through each question -->
+    {% for question, answers in user_choices.items %}
+    <div class="card mb-3">
+        <div class="card-header">
+            <strong>Question {{ forloop.counter }}:</strong> {{ question.question_text }}
+        </div>
+        <div class="card-body">
+            <!-- Display the user's selected answer -->
+            <p class="{% if answers.selected == answers.correct %}text-success{% else %}text-danger{% endif %}">
+                <strong>Your Answer:</strong> 
+                {{ answers.selected.choice_text }}
+            </p>
+
+            <!-- Display the correct answer -->
+            <p><strong>Correct Answer:</strong> {{ answers.correct.choice_text }}</p>
+
+            <!-- Display all choices for this question -->
+            <ul class="list-group">
+                {% for choice in question.answers.all %}
+                    <li class="list-group-item {% if choice == answers.correct %}list-group-item-success{% elif choice == answers.selected %}list-group-item-danger{% endif %}">
+                        {{ choice.choice_text }}
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    {% endfor %}
+</div>
 {% endblock %}

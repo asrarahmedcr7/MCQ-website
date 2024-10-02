@@ -1,21 +1,29 @@
 {% extends "Teacher/base.html" %}
 {% block content %}
-<form action="{% url 'Teacher:edit-questions' quiz.id %}" method="post">
-    <ol>
-        {% for question in quiz.questions.all %}
-            <li>
-                <div id="question_{{question.id}}">
-                        {% csrf_token %}
-                        <h3>{{question.question_text}}</h3>
-                        <ul>
-                            {% for choice in question.answers.all %}
-                                <li><input name="question_{{question.id}}" id="choice_{{choice.id}}" type="radio" {% if choice.is_answer %}checked{% endif %}><label for="choice_{{choice.id}}">{{choice.choice_text}}</label></li>
-                            {% endfor %}
-                        </ul>
-                </div>
-            </li>
-        {% endfor %}
-    </ol>
-<input type="submit" value="Edit">
-</form>
+<div class="container mt-3">
+    <form class="form-control p-4" action="{% url 'Teacher:edit-questions' quiz.id %}" method="post">
+        {% csrf_token %}
+        <ol class="list-group list-group-numbered">
+            {% for question in quiz.questions.all %}
+            <div class="card mb-3 w-100">
+                <li class="list-group-item d-flex flex-column align-items-start border-0">
+                    <div id="question_{{question.id}}">
+                        <h3 class="card-title">{{question.question_text}}</h3>
+                        <div class="btn-group-vertical w-100 mt-3">
+                            <ul class="list-group">
+                                {% for choice in question.answers.all %}
+                                    <li class="list-group-item {% if choice.is_answer %}list-group-item-success{% endif %} mb-3 border-2">
+                                        {{ choice.choice_text }}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </li>
+            </div>
+            {% endfor %}
+        </ol>
+        <input class="btn btn-outline-primary btn-lg mt-3" type="submit" value="{% if quiz.questions.all %}Edit Questions{% else %}Add Questions{% endif %}">
+    </form>
+</div>
 {% endblock %}

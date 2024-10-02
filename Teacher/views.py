@@ -2,12 +2,12 @@ from django.shortcuts import render, redirect
 from Student.models import Quiz, Question, Choice
 from datetime import datetime
 from django.http import Http404, JsonResponse
-from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth.decorators import login_required
-from django.urls import reverse_lazy, reverse
+from django.views.decorators.cache import never_cache
 from .forms import QuizForm
 
-@login_required(login_url='Teacher:login')
+@login_required(login_url='core:teacher-login')
+@never_cache
 def home(request):
     quiz_list = Quiz.objects.order_by('created_at')[::-1]
     return render(request, 'Teacher/home.html', {"quiz_list":quiz_list, 'QuizForm':QuizForm})
@@ -37,19 +37,12 @@ def deleteQuiz(request, quiz_id):
         "message":"Success",
     })
 
+@never_cache
 def showQuestions(request, quiz_id):
     quiz = Quiz.objects.get(pk = quiz_id)
     return render(request, 'Teacher/questions.html', {'quiz':quiz})
 
-class TeacherLoginView(LoginView):
-    template_name = 'Teacher/login.html'
-    redirect_authenticated_user = False
-    def get_success_url(self):
-        return reverse_lazy('Teacher:home')
-
-class TeacherLogoutView(LogoutView):
-    next_page = reverse_lazy('Teacher:login')
-
+@never_cache
 def editQuestion(request, question_id, quiz_id):
     if request.method == "POST":
         question = Quiz.objects.get(pk=quiz_id).questions.all().get(pk=question_id)
@@ -58,8 +51,10 @@ def editQuestion(request, question_id, quiz_id):
             choice.choice_text = request.POST.get(f'choice_{choice.id}')
             choice.save()
         question.save()
-        return render(request, 'Teacher/editQuiz.html', {'quiz':Quiz.objects.get(pk = quiz_id), 'message':f'Question {question_id} Edited'})
-    return Http404
+        return JsonResponse({
+            'message':'Success',
+        })
+    return Http404()
 
 def editQuestions(request, quiz_id):
     return render(request, 'Teacher/editQuiz.html', {'quiz':Quiz.objects.get(pk = quiz_id),})
@@ -77,10 +72,22 @@ def addChoice(request, question_id, quiz_id):
         is_answer = request.POST.get('is_answer') == 'True'
         newChoice = Choice(question_id = question_id, choice_text = choice_text, is_answer = is_answer)
         newChoice.save()
-        return redirect("Teacher:edit-questions", quiz_id=quiz_id)
+        return JsonResponse({
+            "message":"Success",
+            'choice_text':choice_text,
+            'choice_id':newChoice.id,
+        })
     return Http404()
 
+@never_cache
 def addQuestion(request, quiz_id):
     question = Question(quiz_id = quiz_id, question_text = request.POST.get("new_question_text"))
     question.save()
     return redirect("Teacher:edit-questions", quiz_id=quiz_id)
+
+def deleteQuestion(request, quiz_id, question_id):
+    question = Quiz.objects.get(pk=quiz_id).questions.get(pk=question_id)
+    question.delete()
+    return JsonResponse({
+        "message":"Success",
+    })

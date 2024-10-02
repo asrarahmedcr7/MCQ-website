@@ -5,10 +5,12 @@ from django.views import generic
 from django.http import Http404, HttpResponseRedirect
 from .models import Quiz, Question, Choice
 from datetime import datetime
+from django.contrib.auth.mixins import LoginRequiredMixin
 
-class index(generic.ListView):
+class index(LoginRequiredMixin, generic.ListView):
     context_object_name = "quizzes"
     template_name = 'Student/index.html'
+    login_url = 'core:student-login'
 
     def get_queryset(self) -> QuerySet[Any]:
         return Quiz.objects.all()
@@ -24,25 +26,18 @@ class result(generic.DetailView):
 def calculate_result(request, quiz_id):
     if request.method == "POST":
         score = 0
-        qsns = Question.objects.filter(quiz_id=quiz_id)
-        for qsn in qsns:
-            choice = request.POST.get(f'question_{qsn.id}')
-            if Choice.objects.get(pk = choice).is_answer:
+        quiz = Quiz.objects.get(pk=quiz_id)
+        user_choices = {}
+        total_questions = 0
+        for qsn in quiz.questions.all():
+            selected = qsn.answers.get(pk = request.POST.get(f'question_{qsn.id}'))
+            correct = qsn.answers.filter(is_answer=True).first()
+            user_choices[qsn] = {
+                'selected':selected,
+                'correct':correct
+            }
+            if selected.is_answer:
                 score += 1
-        return render(request, 'Student/result.html', {"score":score})
+            total_questions += 1
+        return render(request, 'Student/result.html', {"score":score, 'user_choices':user_choices, 'score':score, 'total_questions':total_questions})
     return Http404()
-
-def createQuiz(request):
-    if request.method == "POST":
-        title = request.POST.get('title')
-        description = request.POST.get('description')
-        created_at = datetime.now()
-        new_quiz = Quiz(title = title, description = description, created_at = created_at)
-        new_quiz.save()
-        return HttpResponseRedirect(f'{new_quiz.id}/questions')
-    return Http404()
-
-def createQuestion(request, quiz_id):
-    quiz = Quiz.objects.get(pk=quiz_id)
-    
-    return render(request, 'Student/quiz.html', {"quiz":quiz})

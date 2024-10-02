@@ -1,48 +1,53 @@
 {% extends 'Teacher/base.html' %}
+{% load static %}
+{% block script %}{% static 'Teacher/js/editQuiz.js' %}{% endblock %}
 {% block content %}
-    <script>
-        function callDelete(choice_id, question_id) {
-            fetch(question_id + "/" + choice_id + "/delete-choice")
-            .then(response => response.json())
-            .then(data => {
-                if(data.message === "Success") {
-                    document.getElementById("choice_"+choice_id).remove();
-                }
-            });
-        }
-        function toggleAddChoiceForm(question_id) {
-            document.getElementById("addChoiceForm_"+question_id).style.display = "block";
-        }
-    </script>
-    
+<div class="container mt-4">
     {% for question in quiz.questions.all %}
-        <form action="{% url 'Teacher:edit-question' quiz.id question.id %}" method="post">
-            {% csrf_token %}
-            <input type="text" name="question_text_{{question.id}}" value="{{question.question_text}}">
-            <ul>
-                {% for choice in question.answers.all %}
-                    <li id="choice_{{choice.id}}">
-                        <input type="text" name="choice_{{choice.id}}" value="{{choice.choice_text}}">
-                        <input type="button" value="Remove" onclick="callDelete( {{choice.id}} ,  {{question.id}})">
-                    </li>
-                {% endfor %}
-            </ul>
-            <input type="submit" value="Save">
-        </form>
-        <input type="button" value="Add choice" onclick="toggleAddChoiceForm({{ question.id }})">
-        <div id="addChoiceForm_{{question.id}}" style="display: none;">
-            <form action="{% url 'Teacher:add-choice' quiz.id question.id %}" method="post">
+    <div id="question_{{question.id}}" class="card mb-3 w-100">
+        <div class="card-body">
+            <form id="editQuestionForm_{{question.id}}" method="post" onsubmit="callEditQuestion(event, {{question.id }})">
                 {% csrf_token %}
-                <input type="text" name="new_choice_text" placeholder="New Choice">
-                <input type="checkbox" name="is_answer" value="True">
-                <label for="is_answer">Is this the answer?</label>
-                <input type="submit" value="Add">
+                <div class="form-group">
+                    <label for="question_text_{{question.id}}" class="form-label">Question {{ forloop.counter }}</label>
+                    <input type="text" class="form-control" id="question_text_{{question.id}}" name="question_text_{{question.id}}" value="{{question.question_text}}" required>
+                </div>
+                <ul id="question_{{question.id}}_choice_list" class="list-group">
+                    {% for choice in question.answers.all %}
+                    <li id="choice_{{choice.id}}" class="list-group-item d-flex justify-content-between align-items-center">
+                        <input type="text" class="form-control mr-2" name="choice_{{choice.id}}" value="{{choice.choice_text}}" required>
+                        <button type="button" class="btn btn-warning" onclick="callDeleteChoice({{choice.id}}, {{question.id}})">Remove</button>
+                    </li>
+                    {% endfor %}
+                </ul>
+                <button type="submit" class="btn btn-primary mt-3">Save</button>
             </form>
+            <button type="button" class="btn btn-secondary mt-2" onclick="toggleAddChoiceForm(event, {{ question.id }})">Add choice</button>
+            <button type="button" class="btn btn-danger mt-2" onclick="callDeleteQuestion({{ question.id }})">Delete Question</button>
+            <div id="addChoiceForm_{{question.id}}" class="mt-3" style="display: none;">
+                <form onsubmit="callAddChoice(event, {{question.id}})" method="post">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="new_choice_text_{{question.id}}" class="form-label">New Choice</label>
+                        <input type="text" class="form-control" id="new_choice_text_{{question.id}}" name="new_choice_text" placeholder="New Choice">
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="is_answer_{{question.id}}" name="is_answer" value="True">
+                        <label class="form-check-label" for="is_answer_{{question.id}}">Is this the answer?</label>
+                    </div>
+                    <button type="submit" class="btn btn-success mt-2">Add</button>
+                </form>
+            </div>
         </div>
+    </div>
     {% endfor %}
-    <form action="{% url 'Teacher:add-question' quiz.id %}" method="post">
+    <form action="{% url 'Teacher:add-question' quiz.id %}" method="post" class="mt-4">
         {% csrf_token %}
-        <input type="text" name="new_question_text" placeholder="New Question">
-        <input type="submit" value="Add Question">
+        <div class="form-group">
+            <label for="new_question_text" class="form-label">New Question</label>
+            <input type="text" class="form-control" id="new_question_text" name="new_question_text" placeholder="New Question">
+        </div>
+        <button type="submit" class="btn btn-primary mt-2">Add Question</button>
     </form>
+</div>
 {% endblock %}
