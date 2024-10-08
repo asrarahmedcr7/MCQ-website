@@ -1,5 +1,5 @@
 from django.db import models
-
+from core.models import CustomUser
 class Quiz(models.Model):
 
     def __str__(self) -> str:
@@ -26,6 +26,16 @@ class Choice(models.Model):
     choice_text = models.TextField()
     is_answer = models.BooleanField(default=False)
 
+class Result(models.Model):
+
+    def __str__(self) -> str:
+        return self.user.username + ' ' + self.quiz.title
+
+    user = models.ForeignKey(CustomUser, related_name="results", on_delete=models.CASCADE)
+    quiz = models.ForeignKey(Quiz, related_name="quizzes", on_delete=models.CASCADE)
+    user_choices_json = models.JSONField(default=dict)
+
+    
 # Question:
 # Text
 #   Choice:

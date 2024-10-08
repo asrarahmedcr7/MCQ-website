@@ -15,10 +15,12 @@
                         <h5 class="card-title">{{ forloop.counter }}. {{ question.question_text }}</h5>
                         <ul class="list-group-unstyled mt-3">
                             {% for choice in question.answers.all %}
-                            <li class="list-group-item border-0">
-                                <input class="btn-check" type="radio" name="question_{{ question.id }}" id="choice_{{ choice.id }}" value="{{ choice.id }}" autocomplete="off"> 
-                                <label class="btn btn-outline-primary col-form-label-lg w-25" for="choice_{{choice.id}}">{{ choice.choice_text }}</label>
-                            </li>
+                            <div class="col-12 col-md-6 col lg-4">
+                                <li class="list-group-item border-0">
+                                    <input class="btn-check" type="radio" name="question_{{ question.id }}" id="choice_{{ choice.id }}" value="{{ choice.id }}" autocomplete="off"> 
+                                    <label class="btn btn-outline-primary col-form-label-lg w-25" for="choice_{{choice.id}}">{{ choice.choice_text }}</label>
+                                </li>
+                            </div>
                             {% endfor %}
                         </ul>
                     </div>

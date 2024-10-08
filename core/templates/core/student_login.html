@@ -1,7 +1,10 @@
 {% extends 'Teacher/base.html' %}
 {% block content %}
+    {% if message %}
+    <div class="alert alert-success">{{message}}</div>
+    {% endif %}
     <div class="container d-flex justify-content-center align-items-center min-vh-100">
-        <div class="card shadow-lg p-5 w-50 border-0">
+        <div class="card shadow-lg p-5 w-50 border-0 col-12 col-md-6 col-lg-4">
             <h2 class="text-center mb-4">Student Login</h2>
             <form action="{% url 'core:student-login' %}" method="post">
                 {% csrf_token %}
@@ -19,6 +22,9 @@
                 {% if error %}
                     <div class="alert alert-danger mt-3 text-center">{{ error }}</div>
                 {% endif %}
+                <div class="text-center">
+                    <p class="text-muted">Click <a href="{% url 'core:student-register' %}">here</a> if you don't have an account.</p>
+                </div>
             </form>
         </div>
     </div>
