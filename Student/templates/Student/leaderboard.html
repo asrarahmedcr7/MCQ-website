@@ -1,0 +1,39 @@
+{% extends 'Student/base.html' %}
+{% load custom_filters %}
+{% block content %}
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">Leaderboard</h2>
+        {% if scores %}
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover text-center">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>User</th>
+                            {% for quiz in quiz_list %}
+                                <th>{{ quiz }}</th>
+                            {% endfor %}
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user, total_score in scores %}
+                            <tr>
+                                <td><strong>{{ user }}</strong></td>
+                                {% with detail_scores|get_item:user as user_scores %}
+                                    {% for quiz in quiz_list %}
+                                        <td>{{ user_scores|get_item:quiz|default:"-" }}</td>
+                                    {% endfor %}
+                                {% endwith %}
+                                <td><strong>{{ total_score }}</strong></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="alert alert-info text-center">
+                <p>No scores available yet. Be the first to take a quiz and enter the leaderboard!</p>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

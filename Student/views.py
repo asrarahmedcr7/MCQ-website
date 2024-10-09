@@ -6,7 +6,7 @@ from django.http import Http404
 from .models import Quiz, Result
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.decorators.cache import never_cache
-
+from core.models import CustomUser
 class index(LoginRequiredMixin, generic.ListView):
     context_object_name = "quizzes"
     template_name = 'Student/index.html'
@@ -68,3 +68,23 @@ def calculate_result(request, quiz_id):
         res.save()
         return render(request, 'Student/result.html', {"score":score, 'user_choices':user_choices, 'score':score, 'total_questions':total_questions})
     return Http404()
+
+def leaderboardView(request):
+
+    def getScore(user_choices_json):
+        score = 0
+        for ans in user_choices_json.values():
+            if ans['selected'] == ans['correct']:
+                score += 1
+        return score
+    
+    scores = {}
+    for user in CustomUser.objects.all():
+        scores[user.username] = {}
+        for quiz in Quiz.objects.all():
+             scores[user.username][quiz.title] = 0
+    for res in Result.objects.all():
+        scores[res.user.username][res.quiz.title] += getScore(res.user_choices_json)
+    total_scores = {user: sum(quiz_scores.values()) for user, quiz_scores in scores.items()}
+    sorted_scores = sorted(total_scores.items(), key=lambda item: item[1], reverse=True)
+    return render(request, 'Student/leaderboard.html', {'scores':sorted_scores, 'detail_scores':scores, 'quiz_list': [quiz.title for quiz in Quiz.objects.all()], 'test':{'a_1':{'b_1':'hello'}}})
